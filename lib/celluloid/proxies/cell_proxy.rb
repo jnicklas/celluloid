@@ -5,12 +5,13 @@ module Celluloid
     # Used for reflecting on proxy objects themselves
     def __class__; CellProxy; end
 
-    def initialize(actor, klass)
-      super(actor.mailbox, klass)
+    def initialize(subject, actor)
+      super(actor.mailbox, subject.class.to_s)
+      @subject      = subject
       @actor        = actor
-      @sync_proxy   = SyncProxy.new(mailbox, klass)
-      @async_proxy  = AsyncProxy.new(mailbox, klass)
-      @future_proxy = FutureProxy.new(mailbox, klass)
+      @sync_proxy   = SyncProxy.new(mailbox, @klass)
+      @async_proxy  = AsyncProxy.new(mailbox, @klass)
+      @future_proxy = FutureProxy.new(mailbox, @klass)
     end
 
     def _send_(meth, *args, &block)
@@ -20,7 +21,7 @@ module Celluloid
     def inspect
       method_missing :inspect
     rescue DeadActorError
-      "#<Celluloid::CellProxy(#{@klass}) dead>"
+      "#<Celluloid::CellProxy(#{@subject.class.to_s}) dead>"
     end
 
     def method(name)
