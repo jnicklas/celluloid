@@ -1,21 +1,23 @@
 module Celluloid
   # A proxy which creates future calls to an actor
   class FutureProxy < AbstractProxy
-    attr_reader :mailbox
-
     # Used for reflecting on proxy objects themselves
     def __class__; FutureProxy; end
 
-    def initialize(mailbox, klass)
-      @mailbox, @klass = mailbox, klass
+    def initialize(subject, actor)
+      @subject, @actor = subject, actor
+    end
+
+    def mailbox
+      @actor.mailbox
     end
 
     def inspect
-      "#<Celluloid::FutureProxy(#{@klass})>"
+      "#<Celluloid::FutureProxy(#{@subject.class.to_s})>"
     end
 
     def method_missing(meth, *args, &block)
-      unless @mailbox.alive?
+      unless mailbox.alive?
         raise DeadActorError, "attempted to call a dead actor"
       end
 
@@ -27,7 +29,7 @@ module Celluloid
       future = Future.new
       call = SyncCall.new(future, meth, args, block)
 
-      @mailbox << call
+      mailbox << call
 
       future
     end

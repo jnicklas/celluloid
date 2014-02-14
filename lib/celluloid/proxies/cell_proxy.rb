@@ -6,12 +6,10 @@ module Celluloid
     def __class__; CellProxy; end
 
     def initialize(subject, actor)
-      super(actor.mailbox, subject.class.to_s)
-      @subject      = subject
-      @actor        = actor
-      @sync_proxy   = SyncProxy.new(mailbox, @klass)
-      @async_proxy  = AsyncProxy.new(mailbox, @klass)
-      @future_proxy = FutureProxy.new(mailbox, @klass)
+      super
+      @sync_proxy   = SyncProxy.new(subject, actor)
+      @async_proxy  = AsyncProxy.new(subject, actor)
+      @future_proxy = FutureProxy.new(subject, actor)
     end
 
     def _send_(meth, *args, &block)
@@ -49,7 +47,7 @@ module Celluloid
     end
 
     def alive?
-      @mailbox.alive?
+      mailbox.alive?
     end
 
     def thread
@@ -66,7 +64,7 @@ module Celluloid
     # Terminate the associated actor asynchronously
     def terminate!
       ::Kernel.raise DeadActorError, "actor already terminated" unless alive?
-      @mailbox << TerminationRequest.new
+      mailbox << TerminationRequest.new
     end
   end
 end
