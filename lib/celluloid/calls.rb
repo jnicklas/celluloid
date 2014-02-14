@@ -1,10 +1,10 @@
 module Celluloid
   # Calls represent requests to an actor
   class Call
-    attr_reader :method, :arguments, :block
+    attr_reader :subject, :method, :arguments, :block
 
-    def initialize(method, arguments = [], block = nil)
-      @method, @arguments = method, arguments
+    def initialize(subject, method, arguments = [], block = nil)
+      @subject, @method, @arguments = subject, method, arguments
       if block
         if Celluloid.exclusive?
           # FIXME: nicer exception
@@ -50,8 +50,8 @@ module Celluloid
   class SyncCall < Call
     attr_reader :sender, :task, :chain_id
 
-    def initialize(sender, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = CallChain.current_id)
-      super(method, arguments, block)
+    def initialize(sender, subject, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = CallChain.current_id)
+      super(subject, method, arguments, block)
 
       @sender   = sender
       @task     = task

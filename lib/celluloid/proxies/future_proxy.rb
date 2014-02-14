@@ -27,7 +27,7 @@ module Celluloid
       end
 
       future = Future.new
-      call = SyncCall.new(future, meth, args, block)
+      call = SyncCall.new(future, @subject, meth, args, block)
 
       mailbox << call
 

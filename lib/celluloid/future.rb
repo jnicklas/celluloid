@@ -10,7 +10,7 @@ module Celluloid
       future = new
       Celluloid::ThreadHandle.new(Celluloid.actor_system, :future) do
         begin
-          call = SyncCall.new(future, :call, args)
+          call = SyncCall.new(future, block, :call, args)
           call.dispatch(block)
         rescue
           # Exceptions in blocks will get raised when the value is retrieved

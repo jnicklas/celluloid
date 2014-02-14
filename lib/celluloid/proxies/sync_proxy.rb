@@ -30,7 +30,7 @@ module Celluloid
         meth = :__send__
       end
 
-      call = SyncCall.new(::Celluloid.mailbox, meth, args, block)
+      call = SyncCall.new(::Celluloid.mailbox, @subject, meth, args, block)
       mailbox << call
       call.value
     end
