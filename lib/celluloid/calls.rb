@@ -20,10 +20,10 @@ module Celluloid
       @block && @block.execution = :receiver
     end
 
-    def dispatch(obj)
-      check(obj)
+    def dispatch
+      check(@subject)
       _block = @block && @block.to_proc
-      obj.public_send(@method, *@arguments, &_block)
+      @subject.public_send(@method, *@arguments, &_block)
     end
 
     def check(obj)
@@ -58,9 +58,9 @@ module Celluloid
       @chain_id = chain_id || Celluloid.uuid
     end
 
-    def dispatch(obj)
+    def dispatch
       CallChain.current_id = @chain_id
-      result = super(obj)
+      result = super
       respond SuccessResponse.new(self, result)
     rescue Exception => ex
       # Exceptions that occur during synchronous calls are reraised in the
@@ -117,9 +117,9 @@ module Celluloid
   # Asynchronous calls don't wait for a response
   class AsyncCall < Call
 
-    def dispatch(obj)
+    def dispatch
       CallChain.current_id = Celluloid.uuid
-      super(obj)
+      super
     rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the sender made a mistake
       Logger.debug("#{obj.class}: async call `#@method` aborted!\n#{Logger.format_exception(ex.cause)}")

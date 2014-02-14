@@ -67,7 +67,7 @@ module Celluloid
       end
 
       task(:call, meth, :dangerous_suspend => meth == :initialize) {
-        call.dispatch(@subject)
+        call.dispatch
       }
     end
 
