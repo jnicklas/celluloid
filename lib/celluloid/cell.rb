@@ -3,6 +3,16 @@ module Celluloid
 
   # Wrap the given subject with an Cell
   class Cell
+    class CallMatcher
+      def initialize(cell)
+        @cell = cell
+      end
+
+      def ===(call)
+        call.is_a?(Call) && @cell.subject == call.subject
+      end
+    end
+
     class ExitHandler
       def initialize(behavior, subject, method_name)
         @behavior = behavior
@@ -30,7 +40,7 @@ module Celluloid
         @actor.exit_handler = ExitHandler.new(self, @subject, exit_handler_name)
       end
 
-      @actor.handle(Call) do |message|
+      @actor.handle(CallMatcher.new(self)) do |message|
         invoke(message)
       end
       @actor.handle(BlockCall) do |message|
