@@ -117,6 +117,8 @@ module Celluloid
       @running   = false
       @name      = nil
 
+      @shutdown_handlers = []
+
       handle(SystemEvent) do |message|
         handle_system_event message
       end
@@ -327,9 +329,13 @@ module Celluloid
       Logger.crash("ERROR HANDLER CRASHED!", ex)
     end
 
+    def at_shutdown(&block)
+      @shutdown_handlers << block # TODO: does this need to be thread-safe?
+    end
+
     # Handle cleaning up this actor after it exits
     def shutdown(exit_event = ExitEvent.new(behavior_proxy))
-      @behavior.shutdown
+      @shutdown_handlers.each(&:call)
       cleanup exit_event
     ensure
       Thread.current[:celluloid_actor]   = nil

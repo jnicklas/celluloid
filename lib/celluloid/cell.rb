@@ -52,6 +52,8 @@ module Celluloid
 
       @actor.start
       @proxy = (options[:proxy_class] || CellProxy).new(@subject, @actor)
+
+      @actor.at_shutdown { shutdown }
     end
     attr_reader :proxy, :subject
 
